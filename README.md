@@ -1,2 +1,3 @@
-# AiDD
+# Capstone
+
 AiDD project repository
