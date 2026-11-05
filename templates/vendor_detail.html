@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ vendor.name }} | Bison Operations{% endblock %}
+{% block page_class %}page-tight{% endblock %}
+{% block content %}
+<a class="link" href="{{ url_for('vendors_list') }}">← Back to vendors</a>
+<div class="title-row" style="margin-top:20px"><div><h1>{{ vendor.name }}</h1><p>Vendor details and messaging.</p></div></div>
+<section class="vendor-layout" style="grid-template-columns:260px 1fr;min-height:0">
+<div>
+<h2>Vendor information</h2>
+<div class="vendor-card">
+<strong>{{ vendor.name }}</strong><br>
+Primary contact: {{ vendor.contact_name }}<br>
+Phone: <a href="tel:{{ vendor.phone }}">{{ vendor.phone }}</a><br>
+Email: <a href="mailto:{{ vendor.email }}">{{ vendor.email }}</a><br>Category: {{ vendor.category }}<br><a href="{{ url_for('vendor_edit',vendor_id=vendor.id) }}">Edit Vendor</a><br><br>
+{{ vendor.notes }}
+</div>
+</div>
+<div>
+<h2>Conversation History</h2>
+<table class="data-table"><thead><tr><th>Date</th><th>Subject</th><th>Message</th><th>Linked item</th></tr></thead><tbody>{% for m in messages %}<tr><td>{{ m.sent_at }}</td><td>{{ m.subject }}</td><td>{{ m.body }}</td><td>{{ m.item_name or '—' }}</td></tr>{% else %}<tr><td colspan="4">No messages yet.</td></tr>{% endfor %}</tbody></table>
+<h2>Send a message</h2>
+<form class="form-card" method="post" action="{{ url_for('vendor_message', vendor_id=vendor.id) }}">
+<label class="field">To<input type="text" value="{{ vendor.email }}" disabled></label>
+<input type="hidden" name="inventory_id" value="{{ pre_item }}"><label class="field">Subject<input type="text" name="subject" value="{{ pre_subject }}" required></label>
+<label class="field">Message<textarea name="body" rows="5" required>{{ pre_body }}</textarea></label>
+<div class="form-actions"><button class="button green" type="submit">Send</button></div>
+</form>
+<h2>Products from this vendor</h2><table class="data-table"><thead><tr><th>Item</th><th>Current qty</th><th>Status</th><th></th></tr></thead><tbody>{% for i in products %}<tr><td>{{ i.name }}</td><td>{{ i.quantity }}</td><td>{{ 'Low stock' if i.quantity < i.reorder_threshold else ('Overstock' if i.quantity > i.max_threshold else 'In stock') }}</td><td class="action-cell"><div class="table-actions"><a class="button" href="{{ url_for('inventory_reorder',item_id=i.id) }}">Reorder</a></div></td></tr>{% endfor %}</tbody></table>
+<h2>Open orders / upcoming shipments</h2><ul>{% for o in orders %}<li>{{ o.code }} · {{ o.item_name }} · {{ o.quantity }} units · {{ o.status }} {% if o.status=='pending' %}<form method="post" action="{{ url_for('purchase_order_receive',order_id=o.id) }}" style="display:inline"><button class="button outline">Mark Received</button></form>{% endif %}</li>{% endfor %}{% for s in shipments %}<li>{{ s.code }} · {{ s.status }} · ETA {{ s.expected_at }}</li>{% endfor %}</ul>
+<p>Shipments: {{ stats.shipments }} · Delayed: {{ stats.delayed }} · Last message: {{ stats.last_message }}</p>
+</div>
+</section>
+{% endblock %}

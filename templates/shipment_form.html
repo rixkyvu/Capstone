@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Shipment' if shipment else 'Add Shipment' }} | Bison Operations{% endblock %}
+{% block page_class %}page-tight{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Shipment' if shipment else 'Add Shipment' }}</h1>
+<form class="form-card" method="post">
+<label class="field">Shipment Code<input type="text" name="code" value="{{ shipment.code if shipment else '' }}" required></label>
+<label class="field">Company<input type="text" name="company" value="{{ shipment.company if shipment else '' }}" required></label>
+<label class="field">Vendor (optional)<select name="vendor_id"><option value="">Choose vendor</option>{% for v in vendors %}<option value="{{ v.id }}" {{ 'selected' if shipment and shipment.vendor_id==v.id }}>{{ v.name }}</option>{% endfor %}</select></label>
+<label class="field">Item Count<input type="number" name="item_count" value="{{ shipment.item_count if shipment else 0 }}" required></label>
+<label class="field">Product (optional)<select name="inventory_id"><option value="">Choose product</option>{% for p in products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></label><label class="field">Product quantity<input type="number" name="quantity" min="0" value="0"></label>
+<label class="field">Expected Date/Time<input type="datetime-local" name="expected_at" value="{{ shipment.expected_at.replace(' ','T') if shipment else '' }}" required></label>
+<label class="field">Direction<select name="direction">
+<option value="inbound" {{ 'selected' if shipment and shipment.direction=='inbound' }}>Inbound</option>
+<option value="outbound" {{ 'selected' if shipment and shipment.direction=='outbound' }}>Outbound</option>
+</select></label>
+<label class="field">Status<select name="status">
+<option value="expected" {{ 'selected' if shipment and shipment.status=='expected' }}>Expected</option>
+<option value="active" {{ 'selected' if shipment and shipment.status=='active' }}>Active</option>
+<option value="delayed" {{ 'selected' if shipment and shipment.status=='delayed' }}>Delayed</option>
+<option value="history" {{ 'selected' if shipment and shipment.status=='history' }}>History</option>
+</select></label>
+<div class="form-actions"><button class="button green" type="submit">Save</button><a class="button outline" href="{{ url_for('shipments_list') }}">Cancel</a></div>
+</form>
+{% endblock %}
