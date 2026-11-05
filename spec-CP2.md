@@ -6,9 +6,9 @@
 
 - **Team Members:** Added actual student names (Michael Hartnett, Diya Kumar, Ricky Vu, Hillary Haine).
 - **Vendor Permissions:** Removed Vendor from the permissions table and added a "Vendor access" clarifying note specifying vendors are records in data.
-- **Manage Records Feature Split:** Split Feature 5 into three narrower features: Feature 5 (Inventory maintenance), Feature 6 (Shipment maintenance), and Feature 7 (Vendor maintenance & messaging).
+- **Manage Records Feature Split:** Split "Manage records" into narrower features while keeping five in total: shipment add/edit/delete moved into the Shipments feature (old Features 3 and 4 merged), and the rest became Feature 4 (Inventory record maintenance) and Feature 5 (Vendor records and messaging). Every feature now has at least two criteria.
 - **Criterion 26 (Defense):** Removed reliance on fixed string searches for secrets; updated criterion to check that the app refuses to start without `SECRET_KEY`.
-- **Criterion 22 (Manual Check):** Tagged explicitly as a manual browser check for confirmation dialog interaction.
+- **Criterion 22 (Manual Check):** Reworded so it can be tested automatically: the Delete button sits in a POST form carrying the confirmation text, a GET to the delete route returns 405 and removes nothing, and the POST deletes the record (E12). Only clicking Cancel in the real dialog is checked by hand.
 - **AI Use Note:** Updated to state which acceptance criteria were changed (26 and 22) and why.
 ## Intent
 
@@ -30,11 +30,9 @@ Every page except `/login` requires signing in. Each account has exactly one rol
 
 1. **Reorder from dashboard** (`/`, `/inventory/<id>/reorder`): the dashboard lists low-stock inventory. A supervisor reviews and edits a suggested order quantity, then confirms to create a purchase order and a vendor message record.
 2. **Inventory search and filters** (`/inventory`): search by SKU, name, vendor, or department and filter by All, In Stock, Low Stock, or Overstock.
-3. **Inbound and outbound shipments** (`/shipments`): switch between inbound and outbound shipment lists; each shipment shows the products it carries.
-4. **Shipment status tabs** (`/shipments`): view Expected, Active, Delayed, and History shipments; History contains completed shipments.
-5. **Inventory record maintenance** (`/inventory`): supervisors add, edit, and delete inventory items; managers can add and edit but cannot delete; team members are read-only.
-6. **Shipment record maintenance** (`/shipments`): supervisors add, edit, and delete shipment records; managers can add and edit but cannot delete; team members are read-only.
-7. **Vendor records and purchase order/message history** (`/vendors`, `/vendors/<id>`): supervisors maintain vendor records and send/record messages; managers can view vendor records and message history but cannot modify vendor records or send messages. Purchase orders and messages are displayed on the related vendor page.
+3. **Shipments page** (`/shipments`): switch between inbound and outbound lists; each shipment shows the products it carries; tabs for Expected, Active, Delayed, and History (completed shipments). Supervisors add, edit, and delete shipments; managers can add and edit but cannot delete; team members are read-only.
+4. **Inventory record maintenance** (`/inventory`): supervisors add, edit, and delete inventory items; managers can add and edit but cannot delete; team members are read-only.
+5. **Vendor records and purchase order/message history** (`/vendors`, `/vendors/<id>`): supervisors maintain vendor records and send/record messages; managers can view vendor records and message history but cannot modify vendor records or send messages. Purchase orders and messages are displayed on the related vendor page.
 
 ## Out of scope
 
@@ -161,19 +159,17 @@ All criteria assume a freshly seeded database unless stated otherwise. **Bad inp
 
 14. **Bad input.** Searching `zzz` or `' OR '1'='1` returns no rows and displays **"No items match your search."** No error page appears.
 
-### Feature 3: Inbound and outbound shipments
+### Feature 3: Shipments page
 
 15. `/shipments` initially opens on Inbound / Expected and lists SHP-10492, SHP-10483, and SHP-10471, but not SHP-20011. Switching to Outbound lists SHP-20011 and none of the SHP-104xx codes.
 
 16. The SHP-10492 row shows **"Sparkling Water 24-pack (200)"** in its Products column.
 
-### Feature 4: Shipment status tabs
-
 17. On Inbound, the Active tab lists only SHP-10410, the Delayed tab lists only SHP-10351, and the History tab lists only SHP-10403.
 
 18. Signed in as the manager, editing SHP-10492 to status Delayed and saving moves it from Expected to Delayed. SHP-10492 also appears in red, with Sparkling Water 24-pack, under Needs Attention on `/`.
 
-### Feature 5: Inventory record maintenance
+### Feature 4: Inventory record maintenance
 
 19. **Bad input.** On the Add Item form, entering `ten` for quantity and `-5` for reorder threshold and submitting saves nothing. The form displays **"Quantity must be a whole number of 0 or more."** under quantity and **"Reorder threshold must be a whole number of 0 or more."** under reorder threshold. Both fields have red outlines, and all other entered values remain filled in. The same server-side messages appear when the request bypasses browser validation.
 
@@ -181,11 +177,9 @@ All criteria assume a freshly seeded database unless stated otherwise. **Bad inp
 
 21. **Bad input.** Requesting `/inventory/999/edit`, `/shipments/999/edit`, or `/vendors/999` displays a 404 page reading **"Record not found."** and creates no record.
 
-### Feature 6: Shipment record maintenance
+22. Signed in as the supervisor, the Delete button for Bottled Spring Water 16oz (case) on `/inventory` is inside a form that sends POST, with the confirmation text **"Are you sure you want to delete Bottled Spring Water 16oz (case)? This cannot be undone."** A GET to its delete route returns 405 and removes nothing. Sending the POST removes it from `/inventory`. Shipments and vendors behave the same way. (Clicking Cancel in the real browser dialog is also checked by hand.)
 
-22. **Manual browser check.** Signed in as the supervisor, clicking Delete on shipment SHP-10492 displays the browser confirmation dialog **"Are you sure you want to delete SHP-10492? This cannot be undone."** Clicking Cancel leaves SHP-10492 listed; clicking OK removes it from `/shipments`. This criterion must be verified manually because it depends on a browser confirmation dialog.
-
-### Feature 7: Vendor records and vendor communication
+### Feature 5: Vendor records and vendor communication
 
 23. **Bad input.** Deleting Pacific Beverage Co., which still supplies three inventory items, is refused with **"Pacific Beverage Co. still supplies 3 inventory items. Reassign or delete them first."** The vendor remains listed on `/vendors`.
 
@@ -201,7 +195,7 @@ All criteria assume a freshly seeded database unless stated otherwise. **Bad inp
 
 ## Constraints
 
-- Python 3 with Flask. Pages are Jinja templates in `templates/`; styles are in `static/`. The only packages that may be installed are Flask and python-dotenv. No ORM such as SQLAlchemy, no JavaScript framework, and no CDN links.
+- Python 3 with Flask. Pages are Jinja templates in `templates/`; styles are in `static/`. The only packages that may be installed are Flask and python-dotenv, plus pytest as a development-only dependency for running the test suite. No ORM such as SQLAlchemy, no JavaScript framework, and no CDN links.
 - Database: one SQLite file. Schema and seed data live in `database.py`. Seeding runs only when the file does not exist, never on sign-out or every launch. To reset the demo, delete the database file.
 - SQL lives only in `database.py` (schema and seed) and `data_access.py` (one function per read, create, update, or delete). `app.py` contains routes only, no SQL, and calls `data_access.py`. Every query uses `?` placeholders. Values for column names in `ORDER BY` come only from a fixed list.
 - Server-side validation lives in `validations.py`, with one function per form returning a dictionary of field → error message. A route saves only when that dictionary is empty. Client-side checks (`required`, `type="number"`, `min`) live in templates but are never the only validation.
@@ -217,4 +211,4 @@ All criteria assume a freshly seeded database unless stated otherwise. **Bad inp
 
 ## AI Use Note
 
-AI was used to reorganize and refine the specification against the assignment feedback, clarify role permissions, split the broad record-management feature into narrower features, and make acceptance criteria more specific and independently testable. **Acceptance criterion 26 was changed** from searching for a few known secret strings to checking that the application refuses to start without `SECRET_KEY`; this is stronger because a string search could miss a different hard-coded secret. **Criterion 22 was also made explicit as a manual browser check** because the acceptance test depends on a browser confirmation dialog. The team reviewed the resulting requirements and remains responsible for verifying them against the prototype and assignment.
+AI was used to reorganize and refine the specification against the assignment feedback, clarify role permissions, split the broad record-management feature into narrower features, and make acceptance criteria more specific and independently testable. **Acceptance criterion 26 was changed** from searching for a few known secret strings to checking that the application refuses to start without `SECRET_KEY`; this is stronger because a string search could miss a different hard-coded secret. **Criterion 22 was reworded** from a dialog-only check, which could only be verified by hand, to a check of the POST form, its confirmation text, a 405 on GET, and the POST delete, so it can be tested automatically. The team reviewed the resulting requirements and remains responsible for verifying them against the prototype and assignment.
