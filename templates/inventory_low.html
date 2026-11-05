@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Low Stock | Bison Operations{% endblock %}
+{% block page_class %}page-tight{% endblock %}
+{% block content %}
+<a class="link" href="{{ url_for('inventory_list') }}">← Back to inventory</a>
+<h1 style="margin-top:26px">Low Stock Items</h1>
+<div class="notice"><b>△ &nbsp; Low Stock Items &nbsp; ●</b> Below reorder threshold — restock soon to avoid stockouts</div>
+<table class="data-table low-table">
+<thead><tr><th>SKU</th><th>Item Name</th><th>Vendor</th><th>Department</th><th>Current / Threshold</th><th>Date Received</th><th>Actions</th></tr></thead>
+<tbody>
+{% for item in items %}
+<tr>
+<td>{{ item.sku }}</td>
+<td><strong>{{ item.name }}</strong></td>
+<td><a href="{{ url_for('vendor_detail',vendor_id=item.vendor_id) }}">{{ item.vendor_name }}</a></td>
+<td><span class="badge">{{ item.department }}</span></td>
+<td>{{ item.quantity }} units<br><small>Reorder at {{ item.reorder_threshold }}</small></td>
+<td>{{ item.date_received }}</td>
+<td><div class="table-actions"><a class="button red" href="{{ url_for('inventory_reorder', item_id=item.id) }}">Reorder</a><a class="button outline" href="{{ url_for('inventory_contact',item_id=item.id) }}">Contact Vendor</a></div></td>
+</tr>
+{% else %}
+<tr><td colspan="7">Nothing is low on stock right now.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

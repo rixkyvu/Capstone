@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Item' if item else 'Add Item' }} | Bison Operations{% endblock %}
+{% block page_class %}page-tight{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Item' if item else 'Add Item' }}</h1>
+<form class="form-card" method="post">
+<label class="field">SKU<input type="text" name="sku" value="{{ item.sku if item else '' }}" required></label>
+<label class="field">Item Name<input type="text" name="name" value="{{ item.name if item else '' }}" required></label>
+<label class="field">Vendor<select name="vendor_id" required>
+{% for v in vendors %}<option value="{{ v.id }}" {{ 'selected' if item and item.vendor_id==v.id }}>{{ v.name }}</option>{% endfor %}
+</select></label>
+<label class="field">Department<input type="text" name="department" value="{{ item.department if item else '' }}" required></label>
+<label class="field">Date Received<input type="date" name="date_received" value="{{ item.date_received if item else '' }}" required></label>
+<label class="field">Quantity<input type="number" name="quantity" value="{{ item.quantity if item else 0 }}" required></label>
+<label class="field">Reorder Threshold<input type="number" name="reorder_threshold" value="{{ item.reorder_threshold if item else 0 }}" required></label>
+<label class="field">Max Threshold<input type="number" name="max_threshold" value="{{ item.max_threshold if item else 0 }}" required></label>
+<div class="form-actions"><button class="button green" type="submit">Save</button><a class="button outline" href="{{ url_for('inventory_list') }}">Cancel</a></div>
+</form>
+{% endblock %}
