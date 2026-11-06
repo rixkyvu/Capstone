@@ -1,6 +1,6 @@
 # Bison Operations Acceptance Check: Scope
 
-This file is the scope definition for `bison-operations-acceptance-check` and is part of the AiDD Capstone assignment deliverable.
+This CP3-prefixed file defines the scope for `cp3-bison-operations-acceptance-check` and is part of the AiDD Capstone assignment deliverable. The skill entry point remains [SKILL.md](./SKILL.md) as required by the VS Code skill format.
 
 ## Purpose
 

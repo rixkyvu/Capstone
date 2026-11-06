@@ -1,6 +1,6 @@
 # Bison Operations acceptance check — run 01
 
-This evidence file records the single reviewer run required by the AiDD Capstone assignment. The request and the agent's returned output are preserved below; the check of that output is in [check-01.md](./check-01.md).
+This CP3-prefixed evidence file records the single reviewer run required by the AiDD Capstone assignment. The request and the agent's returned output are preserved below; the check of that output is in [CP3-check-01.md](./CP3-check-01.md).
 
 ## Request sent to the reviewer agent
 

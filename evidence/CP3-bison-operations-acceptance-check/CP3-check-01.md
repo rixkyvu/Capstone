@@ -1,6 +1,6 @@
-# Check of acceptance review run 01
+# CP3 check of acceptance review run 01
 
-This is an independent item-by-item check of the statuses in [run-01.md](./run-01.md), using the CP2 requirements and the repository's implementation. A status is marked confirmed only when the cited code supports the reviewer's conclusion. These are source/template checks, not claims of runtime behavior.
+This CP3-prefixed file is an independent item-by-item check of the statuses in [CP3-run-01.md](./CP3-run-01.md), using the CP2 requirements and the repository's implementation. A status is marked confirmed only when the cited code supports the reviewer's conclusion. These are source/template checks, not claims of runtime behavior.
 
 ## Verification limit
 
