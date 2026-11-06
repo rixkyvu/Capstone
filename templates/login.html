@@ -1,1 +1,22 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Sign In | Bison Operations</title><link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='ui.css') }}"></head><body class="login-body"><div class="login-card"><div class="logo login-logo"><span class="logo-mark">ℬ</span>Bison Operations Inc</div><h1>Sign in</h1>{% if error %}<div class="error">{{ error }}</div>{% endif %}<form method="post"><label>Email<input type="email" name="email" placeholder="you@bisonoperations.com" required></label><label>Password<input type="password" name="password" placeholder="••••••••" required></label><button class="button green" type="submit">Sign In</button></form><a class="link" href="#">Forgot password?</a></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | Bison Operations</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui.css') }}">
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <div class="logo login-logo"><span class="logo-mark">B</span>Bison Operations Inc</div>
+    <h1>Sign in</h1>
+    {% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post">
+      <label>Email<input type="email" name="email" placeholder="you@bisonoperations.com" required></label>
+      <label>Password<input type="password" name="password" required></label>
+      <button class="button green" type="submit">Sign In</button>
+    </form>
+  </div>
+</body>
+</html>

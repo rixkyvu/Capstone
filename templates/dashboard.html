@@ -1,8 +1,46 @@
-{% extends "base.html" %}{% block title %}Operations Dashboard | Bison{% endblock %}{% block content %}
+{% extends "base.html" %}
+{% block title %}Operations Dashboard | Bison Operations{% endblock %}
+{% block content %}
 <div class="title-row"><div><h1>Operations dashboard</h1><p>Inventory, vendors and shipments at a glance.</p></div></div>
-<section class="dashboard-grid"><a class="dash-card" href="{{ url_for('inventory_list',status='low') }}"><h2>Low Stock</h2><strong>{{ low_stock }}</strong><p>Items below reorder point</p></a><a class="dash-card" href="{{ url_for('shipments_list',status='delayed') }}"><h2>Delayed Shipments</h2><strong>{{ delayed }}</strong><p>Require follow-up</p></a><a class="dash-card" href="{{ url_for('shipments_list') }}"><h2>Inbound Today</h2><strong>{{ expected_today }}</strong><p>Expected deliveries</p></a></section>
-<section class="panel"><h2>Needs Attention</h2><div class="attention-grid">
-<article><h3>Low stock</h3>{% for i in low_items %}<div class="attention-row"><div><b>{{ i.name }}</b><small>{{ i.quantity }} on hand · reorder at {{ i.reorder_threshold }} · <a href="{{ url_for('vendor_detail',vendor_id=i.vendor_id) }}">{{ i.vendor_name }}</a></small>{% if i.incoming %}<small class="incoming">Incoming: {{ i.incoming.code }} from {{ i.incoming.company }} · {{ i.incoming.expected_at }}</small>{% endif %}</div><div class="button-group" aria-label="Low stock actions"><a class="button red" href="{{ url_for('inventory_reorder',item_id=i.id) }}">Reorder</a><a class="button outline" href="{{ url_for('inventory_contact',item_id=i.id) }}">Contact Vendor</a></div></div>{% else %}<p>All items are above reorder thresholds.</p>{% endfor %}</article>
-<article><h3>Delayed shipments</h3>{% for s in delayed_shipments %}<div class="attention-row delayed"><div><b>{{ s.code }} · {{ s.company }}</b><small>{{ s.products or 'Products not specified' }} · New ETA {{ s.expected_at }}</small></div><div class="button-group" aria-label="Delayed shipment actions"><a class="button outline" href="{{ url_for('shipments_list',status='delayed') }}">Review</a></div></div>{% else %}<p>No delayed shipments.</p>{% endfor %}</article>
-<article><h3>Overstock</h3>{% for i in over_items %}<div class="attention-row"><div><b>{{ i.name }}</b><small>{{ i.quantity }} on hand · max {{ i.max_threshold }} · {{ i.vendor_name }}</small></div><div class="button-group" aria-label="Overstock actions"><a class="button outline" href="{{ url_for('inventory_overstock') }}">Review</a></div></div>{% else %}<p>No overstocked items.</p>{% endfor %}</article>
-</div></section>{% endblock %}
+<section class="dashboard-grid">
+  <a class="dash-card" href="{{ url_for('inventory_list', status='low') }}"><h2>Low Stock</h2><strong>{{ low_stock }}</strong><p>Items below reorder point</p></a>
+  <a class="dash-card" href="{{ url_for('shipments_list', status='delayed') }}"><h2>Delayed Shipments</h2><strong>{{ delayed }}</strong><p>Require follow-up</p></a>
+  <a class="dash-card" href="{{ url_for('shipments_list') }}"><h2>Inbound Today</h2><strong>{{ expected_today }}</strong><p>Expected deliveries</p></a>
+</section>
+<section class="panel">
+  <h2>Needs Attention</h2>
+  <div class="attention-grid">
+    <article>
+      <h3>Low stock</h3>
+      {% for i in low_items %}
+      <div class="attention-row low-stock-row">
+        <div><b>{{ i.name }}</b><small>{{ i.quantity }} on hand · reorder at {{ i.reorder_threshold }} ·
+          {% if current_role in ['supervisor', 'manager'] %}<a href="{{ url_for('vendor_detail', vendor_id=i.vendor_id) }}">{{ i.vendor_name }}</a>{% else %}{{ i.vendor_name }}{% endif %}
+        </small>
+        {% if i.incoming %}<small class="{{ 'delayed' if i.incoming.status == 'delayed' else 'incoming' }}">Incoming: {{ i.incoming.code }} from {{ i.incoming.company }} · {{ i.incoming.expected_at }}</small>{% endif %}</div>
+        {% if current_role == 'supervisor' %}
+        <div class="button-group" aria-label="Low stock actions">
+          <a class="button red" href="{{ url_for('inventory_reorder', item_id=i.id) }}">Reorder</a>
+          <a class="button outline" href="{{ url_for('inventory_contact', item_id=i.id) }}">Contact Vendor</a>
+        </div>
+        {% endif %}
+      </div>
+      {% else %}<p>All items are above reorder thresholds.</p>{% endfor %}
+    </article>
+    <article>
+      <h3>Delayed shipments</h3>
+      {% for s in delayed_shipments %}
+      <div class="attention-row delayed"><div><b>{{ s.code }} · {{ s.company }}</b><small>{{ s.products or 'Products not specified' }} · New ETA {{ s.expected_at }}</small></div>
+        <div class="button-group"><a class="button outline" href="{{ url_for('shipments_list', status='delayed') }}">Review</a></div>
+      </div>
+      {% else %}<p>No delayed shipments.</p>{% endfor %}
+    </article>
+    <article>
+      <h3>Overstock</h3>
+      {% for i in over_items %}
+      <div class="attention-row"><div><b>{{ i.name }}</b><small>{{ i.quantity }} on hand · max {{ i.max_threshold }} · {{ i.vendor_name }}</small></div><div class="button-group"><a class="button outline" href="{{ url_for('inventory_overstock') }}">Review</a></div></div>
+      {% else %}<p>No overstocked items.</p>{% endfor %}
+    </article>
+  </div>
+</section>
+{% endblock %}

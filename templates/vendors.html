@@ -1,1 +1,39 @@
-{% extends 'base.html' %}{% block title %}Vendors | Bison Operations{% endblock %}{% block content %}<h1>Vendors</h1><div class="toolbar"><form method="get"><input class="search" name="q" value="{{ q }}" placeholder="Search vendors"><select name="category"><option value="">All categories</option>{% for c in ['Dairy','Beverages','Dry Goods','Cleaning','Frozen'] %}<option {{ 'selected' if category==c }}>{{ c }}</option>{% endfor %}</select><button class="button">Filter</button></form><a class="button" href="{{ url_for('vendors_add') }}">Add Vendor</a></div><table class="data-table"><thead><tr><th>Company</th><th>Category</th><th>Contact</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead><tbody>{% for v in vendors %}<tr><td><a href="{{ url_for('vendor_detail',vendor_id=v.id) }}">{{ v.name }}</a></td><td>{{ v.category }}</td><td>{{ v.contact_name }}</td><td><a href="tel:{{ v.phone }}">{{ v.phone }}</a></td><td><a href="mailto:{{ v.email }}">{{ v.email }}</a></td><td class="action-cell"><div class="table-actions"><a class="button outline" href="{{ url_for('vendor_edit',vendor_id=v.id) }}">Edit</a><a class="button" href="{{ url_for('vendor_detail',vendor_id=v.id) }}">View</a><form method="post" action="{{ url_for('vendor_delete',vendor_id=v.id) }}" onsubmit="return confirm('Are you sure you want to delete {{ v.name|e }}? This cannot be undone.')"><button class="button red" type="submit">Delete</button></form></div></td></tr>{% else %}<tr><td colspan="6">No vendors found.</td></tr>{% endfor %}</tbody></table>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Vendors | Bison Operations{% endblock %}
+{% block content %}
+<h1>Vendors</h1>
+<div class="toolbar">
+  <form method="get">
+    <input class="search" name="q" value="{{ q }}" placeholder="Search vendors">
+    <select name="category">
+      <option value="">All categories</option>
+      {% for category in ['Dairy', 'Beverages', 'Dry Goods', 'Cleaning', 'Frozen'] %}
+      <option value="{{ category }}" {{ 'selected' if category == category_filter }}>{{ category }}</option>
+      {% endfor %}
+    </select>
+    <button class="button" type="submit">Filter</button>
+  </form>
+  {% if current_role == 'supervisor' %}<a class="button" href="{{ url_for('vendors_add') }}">Add Vendor</a>{% endif %}
+</div>
+<table class="data-table">
+  <thead><tr><th>Company</th><th>Category</th><th>Contact</th><th>Phone</th><th>Email</th>{% if current_role == 'supervisor' %}<th>Actions</th>{% endif %}</tr></thead>
+  <tbody>
+    {% for vendor in vendors %}
+    <tr>
+      <td><a href="{{ url_for('vendor_detail', vendor_id=vendor.id) }}">{{ vendor.name }}</a></td>
+      <td>{{ vendor.category }}</td><td>{{ vendor.contact_name }}</td>
+      <td><a href="tel:{{ vendor.phone }}">{{ vendor.phone }}</a></td>
+      <td><a href="mailto:{{ vendor.email }}">{{ vendor.email }}</a></td>
+      {% if current_role == 'supervisor' %}
+      <td class="action-cell"><div class="table-actions">
+        <a class="button outline" href="{{ url_for('vendor_edit', vendor_id=vendor.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('vendor_delete', vendor_id=vendor.id) }}" onsubmit="return confirm('Are you sure you want to delete {{ vendor.name|e }}? This cannot be undone.')"><button class="button red" type="submit">Delete</button></form>
+      </div></td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td colspan="{{ 6 if current_role == 'supervisor' else 5 }}">No vendors found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

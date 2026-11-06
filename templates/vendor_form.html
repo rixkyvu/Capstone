@@ -1,1 +1,27 @@
-{% extends 'base.html' %}{% block title %}{{ 'Edit Vendor' if vendor else 'Add Vendor' }} | Bison Operations{% endblock %}{% block content %}<h1>{{ 'Edit Vendor' if vendor else 'Add Vendor' }}</h1><form class="form-card" method="post"><label class="field">Company Name<input name="name" value="{{ vendor.name if vendor else '' }}" required></label><label class="field">Primary Contact Name<input name="contact_name" value="{{ vendor.contact_name if vendor else '' }}" required></label><label class="field">Phone<input name="phone" value="{{ vendor.phone if vendor else '' }}"></label><label class="field">Email<input type="email" name="email" value="{{ vendor.email if vendor else '' }}"></label><label class="field">Category<select name="category">{% for c in ['Dairy','Beverages','Dry Goods','Cleaning','Frozen'] %}<option {{ 'selected' if vendor and vendor.category==c }}>{{ c }}</option>{% endfor %}</select></label><label class="field">Notes<textarea name="notes">{{ vendor.notes if vendor else '' }}</textarea></label><button class="button green">Save Vendor</button></form>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit Vendor' if vendor else 'Add Vendor' }} | Bison Operations{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Vendor' if vendor else 'Add Vendor' }}</h1>
+<form class="form-card" method="post">
+  <label class="field {{ 'invalid' if errors.get('name') else '' }}">Company Name
+    <input name="name" value="{{ form_data.get('name', vendor.name if vendor else '') }}" required>
+    {% if errors.get('name') %}<small class="error">{{ errors.name }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('contact_name') else '' }}">Primary Contact Name
+    <input name="contact_name" value="{{ form_data.get('contact_name', vendor.contact_name if vendor else '') }}" required>
+    {% if errors.get('contact_name') %}<small class="error">{{ errors.contact_name }}</small>{% endif %}
+  </label>
+  <label class="field">Phone<input name="phone" value="{{ form_data.get('phone', vendor.phone if vendor else '') }}"></label>
+  <label class="field">Email<input type="email" name="email" value="{{ form_data.get('email', vendor.email if vendor else '') }}"></label>
+  <label class="field {{ 'invalid' if errors.get('category') else '' }}">Category
+    <select name="category">
+      {% for category in ['Dairy', 'Beverages', 'Dry Goods', 'Cleaning', 'Frozen'] %}
+      <option value="{{ category }}" {{ 'selected' if form_data.get('category', vendor.category if vendor else 'Dry Goods') == category }}>{{ category }}</option>
+      {% endfor %}
+    </select>
+    {% if errors.get('category') %}<small class="error">{{ errors.category }}</small>{% endif %}
+  </label>
+  <label class="field">Notes<textarea name="notes">{{ form_data.get('notes', vendor.notes if vendor else '') }}</textarea></label>
+  <div class="form-actions"><button class="button green" type="submit">Save Vendor</button><a class="button outline" href="{{ url_for('vendors_list') }}">Cancel</a></div>
+</form>
+{% endblock %}

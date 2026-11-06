@@ -1,1 +1,19 @@
-{% extends 'base.html' %}{% block title %}Overstock | Bison Operations{% endblock %}{% block content %}<a href="{{ url_for('inventory_list') }}">← Back to Inventory</a><h1>Overstocked Items</h1><div class="notice purple">Above max threshold. Choose an action: Mark for Clearance, Transfer, Reduce Next Order, Flag for Review, or Promotion.</div><table class="data-table"><thead><tr><th>SKU</th><th>Item</th><th>Vendor</th><th>Department</th><th>Current / Max</th><th>Date received</th><th>Action</th></tr></thead><tbody>{% for item in items %}<tr><td>{{ item.sku }}</td><td>{{ item.name }}</td><td><a href="{{ url_for('vendor_detail',vendor_id=item.vendor_id) }}">{{ item.vendor_name }}</a></td><td>{{ item.department }}</td><td>{{ item.quantity }} / {{ item.max_threshold }}</td><td>{{ item.date_received }}</td><td>{% if item.overstock_action %}<span class="badge">{{ item.overstock_action }}</span>{% endif %}<form class="table-actions" method="post" action="{{ url_for('inventory_clearance',item_id=item.id) }}"><select name="action"><option>Mark for Clearance</option><option>Transfer</option><option>Reduce Next Order</option><option>Flag for Review</option><option>Promotion</option></select><button class="button outline">Save action</button></form><small>{{ 'Perishable: clearance recommended' if item.perishable else 'Non-perishable: consider reducing next order' }}</small></td></tr>{% else %}<tr><td colspan="7">Nothing is overstocked right now.</td></tr>{% endfor %}</tbody></table>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Overstock | Bison Operations{% endblock %}
+{% block content %}
+<a class="link" href="{{ url_for('inventory_list') }}">← Back to Inventory</a>
+<h1>Overstocked Items</h1>
+<div class="notice">Items above their maximum stock threshold.</div>
+<table class="data-table">
+  <thead><tr><th>SKU</th><th>Item</th><th>Vendor</th><th>Department</th><th>Current / Max</th><th>Date received</th></tr></thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.sku }}</td><td>{{ item.name }}</td>
+      <td>{% if current_role in ['supervisor', 'manager'] %}<a href="{{ url_for('vendor_detail', vendor_id=item.vendor_id) }}">{{ item.vendor_name }}</a>{% else %}{{ item.vendor_name }}{% endif %}</td>
+      <td>{{ item.department }}</td><td>{{ item.quantity }} / {{ item.max_threshold }}</td><td>{{ item.date_received }}</td>
+    </tr>
+    {% else %}<tr><td colspan="6">Nothing is overstocked right now.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

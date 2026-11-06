@@ -4,22 +4,54 @@
 {% block content %}
 <h1>{{ 'Edit Shipment' if shipment else 'Add Shipment' }}</h1>
 <form class="form-card" method="post">
-<label class="field">Shipment Code<input type="text" name="code" value="{{ shipment.code if shipment else '' }}" required></label>
-<label class="field">Company<input type="text" name="company" value="{{ shipment.company if shipment else '' }}" required></label>
-<label class="field">Vendor (optional)<select name="vendor_id"><option value="">Choose vendor</option>{% for v in vendors %}<option value="{{ v.id }}" {{ 'selected' if shipment and shipment.vendor_id==v.id }}>{{ v.name }}</option>{% endfor %}</select></label>
-<label class="field">Item Count<input type="number" name="item_count" value="{{ shipment.item_count if shipment else 0 }}" required></label>
-<label class="field">Product (optional)<select name="inventory_id"><option value="">Choose product</option>{% for p in products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></label><label class="field">Product quantity<input type="number" name="quantity" min="0" value="0"></label>
-<label class="field">Expected Date/Time<input type="datetime-local" name="expected_at" value="{{ shipment.expected_at.replace(' ','T') if shipment else '' }}" required></label>
-<label class="field">Direction<select name="direction">
-<option value="inbound" {{ 'selected' if shipment and shipment.direction=='inbound' }}>Inbound</option>
-<option value="outbound" {{ 'selected' if shipment and shipment.direction=='outbound' }}>Outbound</option>
-</select></label>
-<label class="field">Status<select name="status">
-<option value="expected" {{ 'selected' if shipment and shipment.status=='expected' }}>Expected</option>
-<option value="active" {{ 'selected' if shipment and shipment.status=='active' }}>Active</option>
-<option value="delayed" {{ 'selected' if shipment and shipment.status=='delayed' }}>Delayed</option>
-<option value="history" {{ 'selected' if shipment and shipment.status=='history' }}>History</option>
-</select></label>
-<div class="form-actions"><button class="button green" type="submit">Save</button><a class="button outline" href="{{ url_for('shipments_list') }}">Cancel</a></div>
+  <label class="field {{ 'invalid' if errors.get('code') else '' }}">Shipment Code
+    <input type="text" name="code" value="{{ form_data.get('code', shipment.code if shipment else '') }}" required>
+    {% if errors.get('code') %}<small class="error">{{ errors.code }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('company') else '' }}">Company
+    <input type="text" name="company" value="{{ form_data.get('company', shipment.company if shipment else '') }}" required>
+    {% if errors.get('company') %}<small class="error">{{ errors.company }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('vendor_id') else '' }}">Vendor (optional)
+    <select name="vendor_id"><option value="">Choose vendor</option>
+      {% for vendor in vendors %}<option value="{{ vendor.id }}" {{ 'selected' if form_data.get('vendor_id', shipment.vendor_id if shipment else '')|string == vendor.id|string }}>{{ vendor.name }}</option>{% endfor %}
+    </select>
+    {% if errors.get('vendor_id') %}<small class="error">{{ errors.vendor_id }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('item_count') else '' }}">Item Count
+    <input type="number" min="1" name="item_count" value="{{ form_data.get('item_count', shipment.item_count if shipment else 1) }}" required>
+    {% if errors.get('item_count') %}<small class="error">{{ errors.item_count }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('inventory_id') else '' }}">Product (optional)
+    <select name="inventory_id"><option value="">Choose product</option>
+      {% for product in products %}<option value="{{ product.id }}" {{ 'selected' if form_data.get('inventory_id', shipment.inventory_id if shipment else '')|string == product.id|string }}>{{ product.name }}</option>{% endfor %}
+    </select>
+    {% if errors.get('inventory_id') %}<small class="error">{{ errors.inventory_id }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('quantity') else '' }}">Product quantity
+    <input type="number" min="1" name="quantity" value="{{ form_data.get('quantity', shipment.product_quantity if shipment and shipment.product_quantity else 1) }}">
+    {% if errors.get('quantity') %}<small class="error">{{ errors.quantity }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('expected_at') else '' }}">Expected Date/Time
+    <input type="datetime-local" name="expected_at" value="{{ form_data.get('expected_at', shipment.expected_at.replace(' ', 'T') if shipment else '') }}" required>
+    {% if errors.get('expected_at') %}<small class="error">{{ errors.expected_at }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('direction') else '' }}">Direction
+    <select name="direction">
+      {% for value, label in [('inbound', 'Inbound'), ('outbound', 'Outbound')] %}
+      <option value="{{ value }}" {{ 'selected' if form_data.get('direction', shipment.direction if shipment else 'inbound') == value }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% if errors.get('direction') %}<small class="error">{{ errors.direction }}</small>{% endif %}
+  </label>
+  <label class="field {{ 'invalid' if errors.get('status') else '' }}">Status
+    <select name="status">
+      {% for value in ['expected', 'active', 'delayed', 'history'] %}
+      <option value="{{ value }}" {{ 'selected' if form_data.get('status', shipment.status if shipment else 'expected') == value }}>{{ value|capitalize }}</option>
+      {% endfor %}
+    </select>
+    {% if errors.get('status') %}<small class="error">{{ errors.status }}</small>{% endif %}
+  </label>
+  <div class="form-actions"><button class="button green" type="submit">Save</button><a class="button outline" href="{{ url_for('shipments_list') }}">Cancel</a></div>
 </form>
 {% endblock %}

@@ -1,73 +1,25 @@
-# Database Tables and Attributes
+# CP2 Database Tables
 
-The application uses SQLite. The tables below are defined in `reset_db()` in `app.py`.
+This file documents the SQLite schema initialized by `database.py`. SQL
+definitions and seed data belong there; request-level SQL operations belong in
+`data_access.py`.
 
-## `users`
+| Table | Responsibility |
+|---|---|
+| `users` | Synthetic demo accounts and one of the `supervisor`, `manager`, or `team_member` roles. |
+| `vendors` | Vendor contact details and category. |
+| `inventory` | SKU, item name, vendor, department, received date, quantity, reorder threshold, and maximum threshold. |
+| `shipments` | Inbound and outbound shipment records, status, carrier, expected arrival, and associated vendor where applicable. |
+| `shipment_items` | Inventory items and quantities associated with shipments. |
+| `purchase_orders` | Reorder requests and their status. |
+| `vendor_messages` | Vendor messages and optional related inventory item. |
 
-- `id` — INTEGER, primary key
-- `email` — TEXT, unique, required
-- `password_hash` — TEXT, required
+The demo initializes the schema and sample data only when the configured
+database file does not exist. It does not reset or overwrite an existing
+database at startup or logout. Existing databases with an incompatible schema
+are rejected with an actionable error rather than migrated or erased. Back up
+existing data before changing database files.
 
-## `vendors`
-
-- `id` — INTEGER, primary key
-- `name` — TEXT, required
-- `contact_name` — TEXT
-- `phone` — TEXT
-- `email` — TEXT
-- `notes` — TEXT
-- `category` — TEXT
-
-## `inventory`
-
-- `id` — INTEGER, primary key
-- `sku` — TEXT, required
-- `name` — TEXT, required
-- `vendor_id` — INTEGER, foreign key to `vendors.id`
-- `department` — TEXT
-- `date_received` — TEXT
-- `quantity` — INTEGER, required
-- `reorder_threshold` — INTEGER, required
-- `max_threshold` — INTEGER, required
-- `on_clearance` — INTEGER, default `0`
-- `perishable` — INTEGER, default `0`
-- `overstock_action` — TEXT
-- `unit_cost` — REAL, default `0`
-
-## `vendor_messages`
-
-- `id` — INTEGER, primary key
-- `vendor_id` — INTEGER, required, foreign key to `vendors.id`
-- `subject` — TEXT, required
-- `body` — TEXT, required
-- `sent_at` — TEXT, required
-- `inventory_id` — INTEGER, foreign key to `inventory.id`
-
-## `shipments`
-
-- `id` — INTEGER, primary key
-- `code` — TEXT, required
-- `company` — TEXT, required
-- `item_count` — INTEGER, required
-- `expected_at` — TEXT, required
-- `direction` — TEXT, default `inbound`
-- `status` — TEXT, default `expected`
-- `vendor_id` — INTEGER, foreign key to `vendors.id`
-
-## `shipment_items`
-
-- `id` — INTEGER, primary key
-- `shipment_id` — INTEGER, foreign key to `shipments.id`
-- `inventory_id` — INTEGER, foreign key to `inventory.id`
-- `quantity` — INTEGER, required
-
-## `purchase_orders`
-
-- `id` — INTEGER, primary key
-- `code` — TEXT, required
-- `inventory_id` — INTEGER, foreign key to `inventory.id`
-- `vendor_id` — INTEGER, foreign key to `vendors.id`
-- `quantity` — INTEGER, required
-- `status` — TEXT, required
-- `created_at` — TEXT, required
-- `note` — TEXT
+The schema intentionally excludes features marked out of scope by CP2,
+including employee schedules, overstock-management actions, price/cost fields,
+and an alert counter.

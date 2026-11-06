@@ -1,1 +1,31 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>{% block title %}Bison Operations{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='ui.css') }}"></head><body><header class="site-header"><a class="logo" href="{{ url_for('dashboard') }}"><span class="logo-mark">B</span>Bison Operations Inc</a><nav class="main-nav"><a class="{{ 'active' if request.endpoint=='dashboard' else '' }}" href="{{ url_for('dashboard') }}">Home</a><a class="{{ 'active' if request.endpoint in ['inventory_list','inventory_low_stock','inventory_overstock','inventory_add','inventory_edit','inventory_reorder','inventory_contact'] else '' }}" href="{{ url_for('inventory_list') }}">Inventory</a><a class="{{ 'active' if request.endpoint in ['shipments_list','shipments_add','shipments_edit'] else '' }}" href="{{ url_for('shipments_list') }}">Shipments</a><a class="{{ 'active' if request.endpoint in ['vendors_list','vendors_add','vendor_detail','vendor_message','vendor_edit'] else '' }}" href="{{ url_for('vendors_list') }}">Vendors</a><a href="{{ url_for('dashboard') }}" aria-label="{{ alert_count }} active alerts">Alerts <b>{{ alert_count }}</b></a><a class="sign-out" href="{{ url_for('logout') }}">Sign Out</a></nav></header><main class="page {% block page_class %}{% endblock %}">{% with messages=get_flashed_messages() %}{% if messages %}<div class="notice">{{ messages[0] }}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Bison Operations{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="{{ url_for('dashboard') }}"><span class="logo-mark">B</span>Bison Operations Inc</a>
+  <nav class="main-nav">
+    <a class="{{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">Home</a>
+    <a class="{{ 'active' if request.endpoint in ['inventory_list', 'inventory_low_stock', 'inventory_overstock', 'inventory_add', 'inventory_edit', 'inventory_reorder', 'inventory_contact'] else '' }}" href="{{ url_for('inventory_list') }}">Inventory</a>
+    <a class="{{ 'active' if request.endpoint in ['shipments_list', 'shipments_add', 'shipments_edit'] else '' }}" href="{{ url_for('shipments_list') }}">Shipments</a>
+    {% if current_role in ['supervisor', 'manager'] %}
+    <a class="{{ 'active' if request.endpoint in ['vendors_list', 'vendors_add', 'vendor_detail', 'vendor_message', 'vendor_edit'] else '' }}" href="{{ url_for('vendors_list') }}">Vendors</a>
+    {% endif %}
+    <span>{{ session.get('email') }} ({{ role_label }})</span>
+    <form method="post" action="{{ url_for('logout') }}"><button class="sign-out" type="submit">Sign Out</button></form>
+  </nav>
+</header>
+<main class="page {% block page_class %}{% endblock %}">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}<div class="notice" role="status">{{ messages[0] }}</div>{% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
